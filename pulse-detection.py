@@ -1,20 +1,27 @@
 from imutils.video import VideoStream
+import sys
 import face_recognition
 import argparse
 import imutils
 import pickle
 import time
 import cv2
+import image_to_numpy
 
 print("[INFO] starting video stream...")
-vs = VideoStream(src=0).start()
+#vs = VideoStream(src=0).start()
+vs = cv2.VideoCapture('./input_video/' + sys.argv[1])
 writer = None
 time.sleep(2.0)
 
 while True:
 	# grab the frame from the threaded video stream
-	frame = vs.read()
-	
+	ret, frame1 = vs.read()
+
+
+	frame = cv2.rotate(frame1, cv2.ROTATE_90_CLOCKWISE)
+	frame = cv2.resize(frame, (0,0), fx=1/2, fy=1/2) 
+
 	# convert the input frame from BGR to RGB then resize it to have
 	# a width of 750px (to speedup processing)
 	rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -33,12 +40,14 @@ while True:
 		right = int(right * r)
 		bottom = int(bottom * r)
 		left = int(left * r)
+
 		# draw the predicted face name on the image
 		cv2.rectangle(frame, (left, top), (right, bottom),
 			(0, 255, 0), 2)
 		y = top - 15 if top - 15 > 15 else top + 15
 		cv2.putText(frame, name, (left, y), cv2.FONT_HERSHEY_SIMPLEX,
 			0.75, (0, 255, 0), 2)
-		cv2.imshow("Frame", frame)
-		key = cv2.waitKey(1) & 0xFF
+
+	cv2.imshow("Frame", frame)
+	key = cv2.waitKey(1) & 0xFF
 
